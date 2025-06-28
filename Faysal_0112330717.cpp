@@ -316,6 +316,7 @@ node* delete_nth(node *head, int n, int position)
     {
         head = delete_tail(head);
     }
+
     else
     {
         node *temp, *del;

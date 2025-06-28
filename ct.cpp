@@ -1,4 +1,7 @@
+#include <cmath>
+#include <math.h>
 #include<stdio.h>
+
 struct Node{
     int data;
     struct Node *left, *right;
@@ -13,6 +16,12 @@ node* searchData(node* temp,int key);
 void inorder(node* root);
 void preorder(node* root);
 void postorder(node* root);
+int isPrime(int num);
+node* search_delete(node *root);
+void spacialOperation(node *root);
+void internal_node_print(node *root);
+void leaf_node_print(node *root);
+void node_count(node *root,int * iCount, int *lCount);
 
 
 int main(){
@@ -28,7 +37,6 @@ int main(){
             nn->right = NULL;
             printf("Enter data:");
             scanf("%d",&nn->data);
-
             root = insert_BST(root,nn);
             printf("\nInserted!\n\n");
         }else if(choice==2){
@@ -59,12 +67,97 @@ int main(){
             postorder(root);
             printf("\n\n");
         }
+        else if (choice==7)
+        {
+            root = search_delete(root);
+
+        }else if (choice==8)
+        {
+            spacialOperation(root);
+
+        }
         else{
             printf("Invalid Input!!\n\n");
         }
         choice = menu();
     }
 return 0;
+}
+
+node* search_delete(node *root)
+{
+    if(root == NULL) return NULL;
+
+    root->left = search_delete(root->left);
+    root->right = search_delete(root->right);
+
+    if (isPrime(root->data))
+    {
+        printf("Deleting prime number: %d\n", root->data);
+        node * tamp = delete_BST(root, root->data);
+        return tamp;
+    }
+    return root;
+}
+
+void spacialOperation(node *root)
+{
+    printf("Internal Nodes:");
+    internal_node_print(root);
+    printf("\nLeaf Nodes:");
+    leaf_node_print(root);
+
+    int iCount = 0, lCount = 0;
+    node_count(root, &iCount, &lCount);
+    printf("\nTotal internal nodes:%d\n", iCount);
+    printf("Total leaf nodes:%d\n", lCount);
+}
+
+void internal_node_print(node *root)
+{
+    if(root == NULL) return;
+
+    if (root->left != NULL || root->right != NULL)
+    {
+        printf("%d ", root->data);
+    }
+    internal_node_print(root->left);
+    internal_node_print(root->right);
+}
+
+
+
+void leaf_node_print(node *root)
+{
+    if(root == NULL) return;
+    if (root->left == NULL && root->right == NULL)
+    {
+        printf("%d ", root->data);
+    }
+    leaf_node_print(root->left);
+    leaf_node_print(root->right);
+}
+
+
+
+void node_count(node *root, int *iCount, int *lCount)
+{
+    if(root == NULL) return;
+
+    if (root->left == NULL && root->right == NULL)
+    {
+        (*lCount)++;
+    }
+
+    if (root->left != NULL || root->right != NULL)
+    {
+        (*iCount)++;
+    }
+
+    node_count(root->left,iCount,lCount);
+    node_count(root->right,iCount,lCount);
+
+
 }
 
 void postorder(node* root){
@@ -106,22 +199,26 @@ node* delete_BST(node* root, int key){
 
     if(root == NULL){
         return root;
+
     }else if(key<root->data){
         root->left = delete_BST(root->left, key);
     }else if(key>root->data){
         root->right = delete_BST(root->right, key);
     }else{
+
         if(root->left==NULL){ //Node has no left child
             node* x = root->right;
+            free(root);
             return x;
         }else if(root->right==NULL){ //Node has no right child
             node* x = root->left;
+            free(root);
             return x;
         }
 
         node* temp = min_node(root->right);
         root->data = temp->data;
-        delete_BST(root->right, temp->data);
+        root->right= delete_BST(root->right, temp->data);
     }
     return root;
 }
@@ -144,6 +241,24 @@ node* insert_BST(node* temp,node* nn){
     return temp;
 }
 
+int isPrime(int num)
+{
+    if (num <= 1) return 0;
+    if (num == 2) return 1;
+    if (num % 2 == 0) return 0;
+
+    for(int i = 3; i * i <= num; i += 2)
+    {
+        if(num % i == 0)
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+
 int menu(){
     printf("1) Insert\n");
     printf("2) Delete\n");
@@ -151,6 +266,8 @@ int menu(){
     printf("4) In-order\n");
     printf("5) Pre-order\n");
     printf("6) Post-order\n");
+    printf("7) Search & Delete\n");
+    printf("8) Special Oparation\n");
     printf("0) Exit\n");
     printf("Enter your choice:");
     int choice;
